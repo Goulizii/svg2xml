@@ -49,8 +49,8 @@ MainWindow::~MainWindow()
 void MainWindow::selectSvgClicked()
 {
 	QTableWidget *table = ui->svgFileTableWidget;
-	//ouverture de la boite de dialogue pour séléctionner les fihcier svg
-	QStringList fileNames = QFileDialog::getOpenFileNames(this, "Sélectionnez un ou plusieurs fichiers", QDir::currentPath(), "Fichiers SVG (*.svg)");
+	//ouverture de la boite de dialogue pour selectionner les fihcier svg
+	QStringList fileNames = QFileDialog::getOpenFileNames(this, "Selectionnez un ou plusieurs fichiers", QDir::currentPath(), "Fichiers SVG (*.svg)");
 
 	//ajout des fichiers a la QlistWidget
 	int row;
@@ -60,7 +60,7 @@ void MainWindow::selectSvgClicked()
 			table->insertRow(row);
 			QTableWidgetItem* fileItem = new QTableWidgetItem(fileName);
 			
-			// Création du widget personnalisé pour centré la checkbox
+			// Creation du widget personnalise pour centre la checkbox
 			QWidget* checkBoxWidget = new QWidget();
 			QCheckBox* checkBox = new QCheckBox();
 			checkBox->setChecked(true);
@@ -77,7 +77,7 @@ void MainWindow::selectSvgClicked()
 }
 
 void MainWindow::selectRepClicked() {
-	QString directory = QFileDialog::getExistingDirectory(this, tr("Sélectionner un répertoire"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	QString directory = QFileDialog::getExistingDirectory(this, tr("Selectionner un repertoire"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 	ui->RepSelectLabel->setText(directory);
 }
 
@@ -107,10 +107,11 @@ void MainWindow::toutCocherCheck() {
 void MainWindow::convertirClicked() {
 	QList<QTableWidgetItem*> listFileSvg = getCheckedFile();
 
-	//creation d'une map avec comme clé un nom de fichier et comme valeur une liste des paths de ce fichier
-	map<QString, QList<QString>> filesPaths;
+	//la liste qui va stocker les paths
+	QList<QList<QString>> pathsFromFile;
 	for (int i = 0; i < listFileSvg.count(); ++i) {
-		filesPaths[listFileSvg[i]->text()] = getPathFromFile(listFileSvg[i]->text());
+		/*TOTO*/
+		//pathsFromFile = getPathsFromFile(listFileSvg[i]->text());
 	}
 }
 
@@ -126,68 +127,74 @@ QList<QTableWidgetItem*> MainWindow::getCheckedFile() {
 	return itemList;
 }
 
-QList<QList<QString>> MainWindow::getPathFromFile(QString filePath) {
-	// Ouverture du Fichier et creation de la liste Paths
-	QDomDocument document;
-	QFile file(filePath);
-	if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-	{
-		document.setContent(&file);
-		file.close();
-	}
-	//Obtention de l'element racine
-	QDomElement xmlroot = document.firstChildElement();
-	//Reperage des paths
-	QDomNodeList paths = xmlroot.elementsByTagName("path");
-	// Creation d'une liste contenant des listes contenant les contenues des paths en String
-	QList<QList<QString>> listPaths;
-	// Parcours de l'ensemble des paths
-	for (int i = 0; i < paths.count(); ++i)
-	{
-		// Pour chaque path on crée un item
-		QDomNode itemnode = paths.at(i);
-		if (itemnode.isElement())
-		{
-			//conversion de item to element
-			QDomElement itemle = itemnode.toElement();
-			// detection de l'attribut qui nous intéresse
-			QString item_txt = itemle.attribute("d");
-			// separation des elements grace a l espace
-			QList<QString> list_element_path = item_txt.split(' ');
-			// stock dans une liste de liste
-			listPaths.append(list_element_path);
-		}
-	}
-	retlistPaths;
-}
-
-void MainWindow::detect_letter(QList<QList<QString> > List_paths)
-{
-	QList <int> List_L_count;
-	QString l_letter = "L";
-	//Detection du nombre de L dans chaque path
-	for (int i = 0; i < List_paths.size(); i++)
-	{
-		// comptage du nombre
-		int count_l = List_paths[i].count(l_letter);
-		// stockage dans une liste
-		List_L_count.append(count_l);
-
-	}
-
-	QList <int> List_A_count;
-	QString a_letter = "A";
-	//Detection du nombre de A dans chaque path
-	for (int i = 0; i < List_paths.size(); i++)
-	{
-		// comptage du nombre
-		int count_a = List_paths[i].count(a_letter);
-		// stockage dans une liste
-		List_A_count.append(count_a);
-
-	}
-	// On cree ensuite les points en fonction des lettres (Par manque d'exemple il faut ajouter les lettre manquantes dans la suite du développement)
-	//create_liste_pt(List_paths, List_L_count, List_A_count);
-
-}
+/*TODO*/
+//
+//QList<QList<QString>> MainWindow::getPathsFromFile(QString filePath)
+//{
+//	// Ouverture du Fichier et creation de la liste Paths
+//	QDomDocument document;
+//	QFile file(filePath);
+//	if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+//	{
+//		document.setContent(&file);
+//		file.close();
+//	}
+//	//Obtention de l'element racine
+//	QDomElement xmlroot = document.firstChildElement();
+//	//Reperage des paths
+//	QDomNodeList paths = xmlroot.elementsByTagName("path");
+//	// Creation d'une liste contenant des listes contenant les contenues des paths en String
+//	QList<QList<QString>> listPaths;
+//	// Parcours de l'ensemble des paths
+//	for (int i = 0; i < paths.count(); ++i)
+//	{
+//		// Pour chaque path on cree un item
+//		QDomNode itemnode = paths.at(i);
+//		if (itemnode.isElement())
+//		{
+//			//conversion de item to element
+//			QDomElement itemle = itemnode.toElement();
+//			// detection de l'attribut qui nous interesse
+//			QString item_txt = itemle.attribute("d");
+//			// separation des elements grace a l espace
+//			QList<QString> list_element_path = item_txt.split(' ');
+//			for (int i = 0; i < listPaths.count(); ++i)
+//				cout << list_element_path[i].toStdString()<<endl;
+//			// stock dans une liste de liste
+//			listPaths.append(list_element_path);
+//		}
+//	
+//	}
+//	return listPaths;
+//}
+//
+//void MainWindow::detect_letter(QList<QList<QString> > listPaths)
+//{
+//	QList <int> List_L_count;
+//	QString l_letter = "L";
+//	//Detection du nombre de L dans chaque path
+//	for (int i = 0; i < listPaths.size(); i++)
+//	{
+//		// comptage du nombre
+//		int count_l = listPaths[i].count(l_letter);
+//		// stockage dans une liste
+//		List_L_count.append(count_l);
+//
+//	}
+//
+//	QList <int> List_A_count;
+//	QString a_letter = "A";
+//	//Detection du nombre de A dans chaque path
+//	for (int i = 0; i < listPaths.size(); i++)
+//	{
+//		// comptage du nombre
+//		int count_a = listPaths[i].count(a_letter);
+//		// stockage dans une liste
+//		List_A_count.append(count_a);
+//
+//	}
+//	// On cree ensuite les points en fonction des lettres (Par manque d'exemple il faut ajouter les lettre manquantes dans la suite du developpement)
+//	//create_liste_pt(listPaths, List_L_count, List_A_count);
+//
+//}
 

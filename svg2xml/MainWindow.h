@@ -18,7 +18,7 @@ public:
 private:
     Ui::MainWindowClass *ui;
 	QList<QTableWidgetItem*> MainWindow::getCheckedFile();
-	QList<QList<QString>>  MainWindow::getPathFromFile(QString filePath);
+	QList<QList<QString>> MainWindow::getPathsFromFile(QString filePath);
 	void MainWindow::detect_letter(QList<QList<QString> > List_paths);
 
 private slots:
