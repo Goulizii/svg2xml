@@ -19,7 +19,7 @@ private:
     Ui::MainWindowClass *ui;
 	QList<QTableWidgetItem*> MainWindow::getCheckedFile();
 	QList<QString> MainWindow::getPathsFromFile(QString filePath);
-	void MainWindow::pathToPolyLine(QList<QString> paths, QList<QPolygonF>* polyLines);
+	void MainWindow::pathToPolyLine(QList<QString> paths, QList<QString>* polyLines);
 
 private slots:
 	void selectSvgClicked();

@@ -175,33 +175,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QTableWidget" name="tableWidget">
-            <column>
-             <property name="text">
-              <string>XML</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Article</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Programme</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Machine</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Matière</string>
-             </property>
-            </column>
-           </widget>
+           <widget class="QTableView" name="tableView"/>
           </item>
          </layout>
         </item>

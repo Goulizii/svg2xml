@@ -111,7 +111,7 @@ void MainWindow::convertirClicked() {
 	QList<QString> pathsFromFile;
 	for (int i = 0; i < listFileSvg.count(); ++i) {
 		/*TOTO*/
-		QList<QPolygonF> polyLines;
+		QList<QList<QString>> polyLines;
 		pathsFromFile = getPathsFromFile(listFileSvg[i]->text());
 		//pathToPolyLine(pathsFromFile, &polyLines);
 	}
@@ -160,9 +160,9 @@ QList<QString> MainWindow::getPathsFromFile(QString filePath)
 	return listPaths;
 }
 
-//
-//void MainWindow::pathToPolyLine(QList<QString> paths, QList<QPolygonF>* polyLines) {
-//	for (int i = 0; i < paths.count(); ++i)
-//		;
-//
-//}
+
+void MainWindow::pathToPolyLine(QList<QString> paths, QList<QString>* polyLines) {
+	for (int i = 0; i < paths.count(); ++i)
+		;
+
+}
