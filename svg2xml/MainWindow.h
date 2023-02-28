@@ -18,8 +18,10 @@ public:
 private:
     Ui::MainWindowClass *ui;
 	QList<QTableWidgetItem*> MainWindow::getCheckedFile();
-	QList<QString> MainWindow::getPathsFromFile(QString filePath);
-	void MainWindow::pathToPolyLine(QList<QString> paths, QList<QPolygonF>* polyLines);
+	QList<QList<QString>> MainWindow::getPathsFromFile(QString filePath);
+	void MainWindow::pathToPolyLine(const QList<QList<QString>> paths, QList<QPoint>* polyLines);
+	void MainWindow::delDuplicate(QList<QPoint>* polyLines);
+	QList<QPoint> MainWindow::triPolyLines(QList<QPoint>* polyLines);
 
 private slots:
 	void selectSvgClicked();
