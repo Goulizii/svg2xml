@@ -18,72 +18,62 @@
 
 using namespace std;
 
-QString repCourant;
-QString outputDir;
+QString outputDirSVG;
+QString inputDirSAP = "C:/Users/t.khallouf/source/repos/svg2xml/svg2xml/Conversion SVG XML daher/00_CSV ZIN SAP";
+QString inputDirXML = "C:/Users/t.khallouf/source/repos/svg2xml/svg2xml/Conversion SVG XML daher/04_Layout_generique_matiere";
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindowClass)
 {
-	////change le fond des layout
-	//ui->selectVerticalLayout->setAutoFillBackground(true);
-	//QPalette palette = ui->selectVerticalLayout->palette();
-	//palette.setColor(QPalette::Background, Qt::red);
-	//ui->selectVerticalLayout->setPalette(palette);
-	//ui->convertVerticalLayout->setStyleSheet("background-color: red;");
 
 	ui->setupUi(this);
 	ui->svgFileTableWidget->setColumnWidth(1, 70);
 	ui->svgFileTableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 
-	repCourant = QDir::currentPath();
-	outputDir = repCourant + "Conversion SVG XML daher/00_CSV ZIN SAP";
-	ui->RepSelectSortiLabel->setText(repCourant);
-	ui->RepEntreeSapLabel->setText(outputDir);
-
 	ui->toutCheckBox->setChecked(true);
 
-	int col;
-	while(col<5)
+	int col = 0;
+	while (col < 4)
 	{
 		col = ui->convTableWidget->columnCount();
 		ui->convTableWidget->insertColumn(col);
 
 		switch (col)
 		{
-			case 0:
-			{
-				QTableWidgetItem* paramItem = new QTableWidgetItem("SVG");
-				ui->convTableWidget->setItem(0, col, paramItem);
-				ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
-				break;
-			}
-			case 1:
-			{
-				QTableWidgetItem* paramItem = new QTableWidgetItem("Article");
-				ui->convTableWidget->setItem(0, col, paramItem);
-				ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
-				break;
-			}
-			case 2:
-			{
-				QTableWidgetItem* paramItem = new QTableWidgetItem("Programme");
-				ui->convTableWidget->setItem(0, col, paramItem);
-				ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
-				break;
-			}
-			case 3:
-			{
-				QTableWidgetItem* paramItem = new QTableWidgetItem("Machine");
-				ui->convTableWidget->setItem(0, col, paramItem);
-				ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
-				break;
-			}
-			case 4:
-			{
-				QTableWidgetItem* paramItem = new QTableWidgetItem("Matiere");
-				ui->convTableWidget->setItem(0, col, paramItem);
-				ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
-				break;
-			}
+		case 0:
+		{
+			QTableWidgetItem* paramItem = new QTableWidgetItem("SVG");
+			ui->convTableWidget->setHorizontalHeaderItem(col, paramItem);
+			ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
+			break;
+		}
+		case 1:
+		{
+			QTableWidgetItem* paramItem = new QTableWidgetItem("Article");
+			ui->convTableWidget->setHorizontalHeaderItem(col, paramItem);
+			ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
+			break;
+		}
+		case 2:
+		{
+			QTableWidgetItem* paramItem = new QTableWidgetItem("Programme");
+			ui->convTableWidget->setHorizontalHeaderItem(col, paramItem);
+			ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
+			break;
+		}
+		case 3:
+		{
+			QTableWidgetItem* paramItem = new QTableWidgetItem("Machine");
+			ui->convTableWidget->setHorizontalHeaderItem(col, paramItem);
+			ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
+			break;
+		}
+		case 4:
+		{
+			QTableWidgetItem* paramItem = new QTableWidgetItem("Matiere");
+			ui->convTableWidget->setHorizontalHeaderItem(col, paramItem);
+			ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
+			break;
+		}
 		}
 	}
 	
@@ -91,6 +81,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	QObject::connect(ui->selectionRepPushButton, SIGNAL(clicked()), this, SLOT(selectRepClicked()));
 	QObject::connect(ui->toutCheckBox, SIGNAL(stateChanged(int)), this, SLOT(toutCocherCheck()));
 	QObject::connect(ui->ConvertPushButton, SIGNAL(clicked()), this, SLOT(convertirClicked()));
+	QObject::connect(ui->selectionSapPushButton, SIGNAL(clicked()), this, SLOT(selectSapCLicked()));
+	QObject::connect(ui->selectionXMLPushButton, SIGNAL(clicked()), this, SLOT(selectXMLCLicked()));
+	
+
 }
 
 MainWindow::~MainWindow()
@@ -127,10 +121,6 @@ void MainWindow::selectSvgClicked()
 	}
 }
 
-void MainWindow::selectRepClicked() {
-	QString directory = QFileDialog::getExistingDirectory(this, tr("Selectionner un repertoire"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-	ui->RepSelectSortiLabel->setText(directory);
-}
 
 void MainWindow::toutCocherCheck() {
 	QCheckBox *tCheckBox = ui->toutCheckBox;
@@ -155,19 +145,58 @@ void MainWindow::toutCocherCheck() {
 	}
 }
 
-void MainWindow::convertirClicked() {
+void MainWindow::selectRepClicked() {
+	QString directory = QFileDialog::getExistingDirectory(this, tr("Selectionner un repertoire"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	ui->repSelectSortiLabel->setText(directory);
+}
+
+void MainWindow::selectSapCLicked()
+{
+	inputDirSAP = QFileDialog::getExistingDirectory(this, tr("Selectionner le repertoire des SAP"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	ui->repEntreeSapLabel->setText(inputDirSAP);
+}
+
+void MainWindow::selectXMLCLicked()
+{
+	inputDirXML = QFileDialog::getExistingDirectory(this, tr("Selectionner le repertoire des xml generiques"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	ui->repEntreeXmlLabel->setText(inputDirXML);
+}
+
+void MainWindow::convertirClicked() 
+{
+
+	if (ui->svgFileTableWidget->rowCount() == 0)
+	{
+		QMessageBox::critical(nullptr, "Error", "Select at least 1 svg file !");
+		return;
+	}
+
+	QString outDirectory = QFileDialog::getExistingDirectory(this, tr("Selectionner un repertoire de sortie"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+	if (outDirectory.isEmpty())
+	{
+		qDebug() << "directory selected is empty !";
+		return;
+	}
+
 	QList<QTableWidgetItem*> svgFileList = getCheckedFile();
 	//la liste qui va stocker les chemins
 	QList<QList<QString>> pathsFromFile;
 
-	for (int i = 0; i < svgFileList.count(); ++i) {
+	for (int i = 0; i < svgFileList.count(); ++i) 
+	{
 		/*TOTO*/
 		//liste qui va contenir les polyLines du fichier filePath
 		QList<int> pixelsList;
 		QString filePath(svgFileList[i]->text());
+
+		QFile file(filePath);
+
+		QString filename = outDirectory +  "/" + QFileInfo(file).fileName();;
+
 		pathsFromFile = getPathsFromFile(filePath);
 		pathToPolyLine(pathsFromFile, &pixelsList);
-		writeAndSaveXML(pixelsList, filePath);
+		writeAndSaveXML(pixelsList, filename, outDirectory);
 	}
 }
 
@@ -472,34 +501,40 @@ QList<QPoint> MainWindow::triPolyLines(QList<QPoint>* polyLines)
 	return polyLinesTrie;
 }
 
-void MainWindow::writeAndSaveXML(QList<int> pixelsList, QString filePath)
+void MainWindow::writeAndSaveXML(QList<int> pixelsList, const QString fileName, const QString saveDir)
 {
-	infoConv info; 
-	int pos = filePath.lastIndexOf(".");
-	filePath.remove(pos, filePath.length());
-	QString cleSVG = filePath.split("/").last();
-	recupSAP(cleSVG, &info);
-	//qDebug() << "article" << info.article << endl << "machine" << info.machine << endl << "materiel" << info.materiel << endl << "programme" << info.programme;
+	QList<QString> convertFile;
+	infoConv info;
 
-	// Load the XML file
-	qDebug() << "C:/Users/t.khallouf/source/repos/svg2xml/svg2xml/Conversion SVG XML daher/04_Layout_generique_matiere/" + info.materiel + ".xml";
-	QFile file("C:/Users/t.khallouf/source/repos/svg2xml/svg2xml/Conversion SVG XML daher/04_Layout_generique_matiere/" + info.materiel + ".xml");
-	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+	//recuperation du nom du fichier pour l'inclure dans le nom xml
+	QString cleSVG = fileName.split("/").last();
+	int pos = cleSVG.lastIndexOf(".");
+	cleSVG.remove(pos, fileName.length());
+	recupSAP(cleSVG, &info);
+
+	// charge le fichier xml generique
+	if (inputDirXML.isEmpty())
 	{
-		//qDebug() << "C:/Users/t.khallouf/source/repos/svg2xml/svg2xml/Conversion SVG XML daher/04_Layout_generique_matiere/" + info.materiel + ".xml";
-		qDebug() << "echec ouverture fichier";
+		QMessageBox::critical(nullptr, "Error", "Select directory for generic XML !");
 		return;
 	}
 
-	QDomDocument doc;
-	if (!doc.setContent(&file)) {
+	QFile file(inputDirXML + "/Matiere CPEEK.xml");
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		qDebug() << "failed open Material file";
+		return;
+	}
+
+	QDomDocument xmlCoreDoc;
+	if (!xmlCoreDoc.setContent(&file)) {
 		file.close();
 		return;
 	}
 	file.close();
 
 	// Find the desired tag
-	QDomElement root = doc.documentElement();
+	QDomElement root = xmlCoreDoc.documentElement();
 	QDomNode configDataNode = root.firstChildElement("Configurations")
 		.firstChildElement("ConfigData")
 		.firstChildElement("Measuring")
@@ -510,19 +545,19 @@ void MainWindow::writeAndSaveXML(QList<int> pixelsList, QString filePath)
 
 	if (!configDataNode.isNull()) {
 		QDomElement configDataElem = configDataNode.toElement();
-		QDomElement Points = doc.createElement("Points");
+		QDomElement Points = xmlCoreDoc.createElement("Points");
 		configDataElem.appendChild(Points);
 		for (int i = 0; i < pixelsList.size(); i++)
 		{
 			if (i % 2 == 0)
 			{
-				QDomElement Point = doc.createElement("Point");
-				QDomElement X = doc.createElement("X");
-				QDomElement Y = doc.createElement("Y");
+				QDomElement Point = xmlCoreDoc.createElement("Point");
+				QDomElement X = xmlCoreDoc.createElement("X");
+				QDomElement Y = xmlCoreDoc.createElement("Y");
 				//Points.setAttribute("Y",pixelsList[i+1] );
 				//Points.setAttribute("X",pixelsList[i] );
-				QDomText  x_value = doc.createTextNode(QString::number(pixelsList[i]));
-				QDomText  y_value = doc.createTextNode(QString::number(pixelsList[i + 1]));
+				QDomText  x_value = xmlCoreDoc.createTextNode(QString::number(pixelsList[i]));
+				QDomText  y_value = xmlCoreDoc.createTextNode(QString::number(pixelsList[i + 1]));
 				X.appendChild(x_value);
 				Y.appendChild(y_value);
 
@@ -532,41 +567,49 @@ void MainWindow::writeAndSaveXML(QList<int> pixelsList, QString filePath)
 			}
 		}
 	}
-	else
-	{
-		qDebug() << "fail write in xml file : " << cleSVG + "_" + info.programme + ".xml";
-	}
 
 
 	// Save the modified XML to a new file
+	
+	QString outDirPath = saveDir + "/" + info.machine + "_xml";
 
-	// Check if output folder exists	
-	QString outDir = outputDir + "/" + info.machine + "_xml";
-	if (!std::experimental::filesystem::is_directory(outDir.toStdString()) || !std::experimental::filesystem::exists(outDir.toStdString()))
+	// Check if output folder exists
+	QDir outDir(outDirPath);
+	if (!outDir.exists())
 	{
-		qDebug() << "Creating" << outDir << "directory...";
-		std::experimental::filesystem::create_directory(outDir.toStdString()); // create output folder
+		if (!outDir.mkpath("."))
+		{
+			QMessageBox::critical(nullptr, "Error", "Failed to create directory: " + outDirPath);
+			return;
+		}
 	}
+
 	else
 	{
-		qDebug() << "Directory" << outDir << "already exist !";
+		QMessageBox::critical(nullptr, "Error", "Wrong output directory for svg" + outDirPath);
+		return;
 	}
 
-
-	qDebug() << outDir + "/" + cleSVG + "_" + info.programme + ".xml";
-	QFile nouvFich(outDir + "/" + cleSVG + "_" + info.programme + ".xml");
+	QFile nouvFich(outDirPath + "/" + cleSVG + "_" + info.programme + ".xml");
 	if (!nouvFich.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		QMessageBox::critical(nullptr, "Error", "Failed open " + outDirPath);
 		return;
-
+	}
 	QTextStream stream(&nouvFich);
-	stream << doc.toString();
+	stream << xmlCoreDoc.toString();
+
 	nouvFich.close();
 }
 
 
 void MainWindow::recupSAP(QString cleSVG, infoConv *info)
 {
-	QFile fichParc1("C:/Users/t.khallouf/source/repos/svg2xml/svg2xml/Conversion SVG XML daher/00_CSV ZIN SAP/ZIN55_V3.csv");
+
+	if (inputDirSAP.isEmpty())
+		QMessageBox::critical(nullptr, "Error", "Select directory for SAP files !");
+
+	QFile fichParc1(inputDirSAP + "/ZIN55_V3.csv");
 	if (!fichParc1.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
 
@@ -587,10 +630,13 @@ void MainWindow::recupSAP(QString cleSVG, infoConv *info)
 	//fermeture du fichier et du flux pour parcourir a nouveau le fichier
 	fichParc1.close();
 	
-	QFile fichParc2("C:/Users/t.khallouf/source/repos/svg2xml/svg2xml/Conversion SVG XML daher/00_CSV ZIN SAP/ZIN55_V3.csv");
+	QFile fichParc2(inputDirSAP +"/ZIN55_V3.csv");
 	if (!fichParc2.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		QMessageBox::critical(nullptr, "Error", "Sap file is empty !");
 		return;
-	QTextStream streamParc2(&fichParc2);
+	}
+		QTextStream streamParc2(&fichParc2);
 
 	// 2eme parcours du fichier pour extraire la machine et le programme a partir de l'article
 	while (!streamParc2.atEnd()) 
@@ -619,9 +665,13 @@ void MainWindow::recupSAP(QString cleSVG, infoConv *info)
 		}
 	}
 
-	QFile fich("C:/Users/t.khallouf/source/repos/svg2xml/svg2xml/Conversion SVG XML daher/00_CSV ZIN SAP/ZIN41BV2.csv");
+
+	QFile fich(inputDirSAP +"/ZIN41BV2.csv");
 	if (!fich.open(QIODevice::ReadOnly | QIODevice::Text))
+	{
+		QMessageBox::critical(nullptr, "Error", "Sap file is empty !");
 		return;
+	}
 
 
 	QTextStream stream(&fich);
@@ -668,3 +718,4 @@ void MainWindow::setTableConv(infoConv info)
 {
 
 }
+
