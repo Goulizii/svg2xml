@@ -18,64 +18,16 @@
 
 using namespace std;
 
-QString outputDirSVG;
-QString inputDirSAP = "C:/Users/t.khallouf/source/repos/svg2xml/svg2xml/Conversion SVG XML daher/00_CSV ZIN SAP";
-QString inputDirXML = "C:/Users/t.khallouf/source/repos/svg2xml/svg2xml/Conversion SVG XML daher/04_Layout_generique_matiere";
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindowClass)
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindowClass)
 {
 
 	ui->setupUi(this);
 	ui->svgFileTableWidget->setColumnWidth(1, 70);
 	ui->svgFileTableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 
+	ui->tabConvParamWidget->setCurrentIndex(0);
 	ui->toutCheckBox->setChecked(true);
-
-	int col = 0;
-	while (col < 4)
-	{
-		col = ui->convTableWidget->columnCount();
-		ui->convTableWidget->insertColumn(col);
-
-		switch (col)
-		{
-		case 0:
-		{
-			QTableWidgetItem* paramItem = new QTableWidgetItem("SVG");
-			ui->convTableWidget->setHorizontalHeaderItem(col, paramItem);
-			ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
-			break;
-		}
-		case 1:
-		{
-			QTableWidgetItem* paramItem = new QTableWidgetItem("Article");
-			ui->convTableWidget->setHorizontalHeaderItem(col, paramItem);
-			ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
-			break;
-		}
-		case 2:
-		{
-			QTableWidgetItem* paramItem = new QTableWidgetItem("Programme");
-			ui->convTableWidget->setHorizontalHeaderItem(col, paramItem);
-			ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
-			break;
-		}
-		case 3:
-		{
-			QTableWidgetItem* paramItem = new QTableWidgetItem("Machine");
-			ui->convTableWidget->setHorizontalHeaderItem(col, paramItem);
-			ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
-			break;
-		}
-		case 4:
-		{
-			QTableWidgetItem* paramItem = new QTableWidgetItem("Matiere");
-			ui->convTableWidget->setHorizontalHeaderItem(col, paramItem);
-			ui->convTableWidget->horizontalHeader()->setSectionResizeMode(col, QHeaderView::Stretch);
-			break;
-		}
-		}
-	}
 	
 	QObject::connect(ui->selectSvgPushButton, SIGNAL(clicked()), this, SLOT(selectSvgClicked()));
 	QObject::connect(ui->selectionRepPushButton, SIGNAL(clicked()), this, SLOT(selectRepClicked()));
@@ -84,7 +36,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	QObject::connect(ui->selectionSapPushButton, SIGNAL(clicked()), this, SLOT(selectSapCLicked()));
 	QObject::connect(ui->selectionXMLPushButton, SIGNAL(clicked()), this, SLOT(selectXMLCLicked()));
 	
-
 }
 
 MainWindow::~MainWindow()
@@ -93,30 +44,32 @@ MainWindow::~MainWindow()
 
 void MainWindow::selectSvgClicked()
 {
-	QTableWidget *table = ui->svgFileTableWidget;
+	QTableWidget *tableSvg = ui->svgFileTableWidget;
 	//ouverture de la boite de dialogue pour selectionner les fichiers svg
 	QStringList fileNames = QFileDialog::getOpenFileNames(this, "Selectionnez un ou plusieurs fichiers", QDir::currentPath(), "Fichiers SVG (*.svg)");
 
 	//ajout des fichiers a la QlistWidget
 	int row;
-	foreach(const QString& fileName, fileNames) {
-		if(table->findItems(fileName, Qt::MatchWrap | Qt::MatchWildcard).isEmpty()) {
-			row = table->rowCount();
-			table->insertRow(row);
+	foreach(const QString& fileName, fileNames) 
+	{
+		if(tableSvg->findItems(fileName, Qt::MatchWrap | Qt::MatchWildcard).isEmpty()) 
+		{
+			row = tableSvg->rowCount();
+			tableSvg->insertRow(row);
 			QTableWidgetItem* fileItem = new QTableWidgetItem(fileName);
 			
 			// Creation du widget personnalise pour centre la checkbox
 			QWidget* checkBoxWidget = new QWidget();
 			QCheckBox* checkBox = new QCheckBox();
 			checkBox->setChecked(true);
-			QHBoxLayout* layoutCheckBox = new QHBoxLayout(checkBoxWidget);
-			layoutCheckBox->addWidget(checkBox);
-			layoutCheckBox->setAlignment(Qt::AlignCenter);
-			layoutCheckBox->setContentsMargins(0, 0, 0, 0);
-			checkBoxWidget->setLayout(layoutCheckBox);
+			QHBoxLayout* checkBoxlayout = new QHBoxLayout(checkBoxWidget);
+			checkBoxlayout->addWidget(checkBox);
+			checkBoxlayout->setAlignment(Qt::AlignCenter);
+			checkBoxlayout->setContentsMargins(0, 0, 0, 0);
+			checkBoxWidget->setLayout(checkBoxlayout);
 
-			table->setCellWidget(row, 1, checkBoxWidget);
-			table->setItem(row, 0, fileItem);
+			tableSvg->setCellWidget(row, 1, checkBoxWidget);
+			tableSvg->setItem(row, 0, fileItem);
 		}
 	}
 }
@@ -152,65 +105,69 @@ void MainWindow::selectRepClicked() {
 
 void MainWindow::selectSapCLicked()
 {
-	inputDirSAP = QFileDialog::getExistingDirectory(this, tr("Selectionner le repertoire des SAP"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-	ui->repEntreeSapLabel->setText(inputDirSAP);
+	inputDirSap = QFileDialog::getExistingDirectory(this, tr("Selectionner le repertoire des SAP"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	ui->repEntreeSapLabel->setText(inputDirSap);
 }
 
 void MainWindow::selectXMLCLicked()
 {
-	inputDirXML = QFileDialog::getExistingDirectory(this, tr("Selectionner le repertoire des xml generiques"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-	ui->repEntreeXmlLabel->setText(inputDirXML);
+	inputDirXml = QFileDialog::getExistingDirectory(this, tr("Selectionner le repertoire des xml generiques"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	ui->repEntreeXmlLabel->setText(inputDirXml);
 }
 
 void MainWindow::convertirClicked() 
 {
-
 	if (ui->svgFileTableWidget->rowCount() == 0)
 	{
 		QMessageBox::critical(nullptr, "Error", "Select at least 1 svg file !");
 		return;
 	}
 
-	QString outDirectory = QFileDialog::getExistingDirectory(this, tr("Selectionner un repertoire de sortie"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+	if (outputDirSvg.isEmpty())
+		outputDirSvg = QFileDialog::getExistingDirectory(this, tr("Selectionner un repertoire de sortie"), QDir::currentPath(), QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
-	if (outDirectory.isEmpty())
-	{
-		qDebug() << "directory selected is empty !";
-		return;
-	}
 
-	QList<QTableWidgetItem*> svgFileList = getCheckedFile();
+	//recupere les fichiers a convertir ainsi que leurs numeros de ligne dans la table
+	QList<QTableWidgetItem*> svgFileList;
+	QList<int> rowIds;
+	getCheckedFile(&svgFileList, &rowIds);
+
 	//la liste qui va stocker les chemins
 	QList<QList<QString>> pathsFromFile;
-
+	
+	//liste qui va contenir le chemin trie
+	QList<QPoint> polyLines;
 	for (int i = 0; i < svgFileList.count(); ++i) 
 	{
 		/*TOTO*/
-		//liste qui va contenir les polyLines du fichier filePath
-		QList<int> pixelsList;
+
 		QString filePath(svgFileList[i]->text());
+		infoConversion infosConversion;
 
 		QFile file(filePath);
 
-		QString filename = outDirectory +  "/" + QFileInfo(file).fileName();;
-
+		//recupere le nom du fichier pour le passer en parametre dans writeAndSaveXML
+		QString fileName =  QFileInfo(file).fileName();;
 		pathsFromFile = getPathsFromFile(filePath);
-		pathToPolyLine(pathsFromFile, &pixelsList);
-		writeAndSaveXML(pixelsList, filename, outDirectory);
+		pathsToPolyLines(pathsFromFile, &polyLines);
+		writeAndSaveXml(polyLines, fileName, &infosConversion);
+		setTableConversion(&infosConversion, rowIds);
 	}
 }
 
-QList<QTableWidgetItem*> MainWindow::getCheckedFile() {
+void MainWindow::getCheckedFile(QList<QTableWidgetItem*>* svgFileList, QList<int>* rowIds) {
 	QTableWidget *table = ui->svgFileTableWidget;
-	QList<QTableWidgetItem*> itemList;
 
 	for (int i = 0; i < table->rowCount(); ++i) {
 		QWidget* widget = table->cellWidget(i, 1);
 		QCheckBox* checkBox = qobject_cast<QCheckBox*>(widget->layout()->itemAt(0)->widget());
 		if (checkBox->isChecked())
-			itemList.append(table->item(i, 0));
+		{
+			svgFileList->append(table->item(i, 0));
+			rowIds->append(i);
+
+		}
 	}
-	return itemList;
 }
 
 
@@ -245,130 +202,15 @@ QList<QList<QString>> MainWindow::getPathsFromFile(QString filePath)
 	return pathsList;
 }
 
-void MainWindow::pathToPolyLine(const QList<QList<QString>> paths, QList<int>* polyLines) {
 
-	for (int i = 0; i < paths.count(); i++)
-	{
-		//qDebug() << paths[i];
-		for (int j = 0; j < paths[i].count(); j++)
-		{
-			//Parcours de tous les paths pour créer la liste des points convertis en pixel 
-			QString lettre = paths[i][j];
-
-			if (lettre == "M" || lettre == "m")
-			{
-
-				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-
-				polyLines->append(pixelX);
-				polyLines->append(pixelY);
-			}
-			else if (lettre == "L" || lettre == "l")
-			{
-				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-
-				polyLines->append(pixelX);
-				polyLines->append(pixelY);
-			}
-			else if (lettre == "H" || lettre == "h")
-			{
-				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-
-				polyLines->append(pixelX);
-				polyLines->append(pixelY);
-			}
-			else if (lettre == "V" || lettre == "v")
-			{
-				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-
-				polyLines->append(pixelX);
-				polyLines->append(pixelY);
-			}
-			else if (lettre == "C" || lettre == "c")
-			{
-				//2 point de controle et 1 point pour la fin
-
-				int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
-				int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-				int pixelC2X = round(paths[i][j + 3].toDouble() / 3.0235602);
-				int pixelC2Y = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
-				int pixelEndX = round(paths[i][j + 5].toDouble() / 3.0235602);
-				int pixelEndY = round((paths[i][j + 6].toDouble() - 447) / 2.77083333);
-
-				polyLines->append(pixelC1X);
-				polyLines->append(pixelC1Y);
-				polyLines->append(pixelC2X);
-				polyLines->append(pixelC2Y);
-				polyLines->append(pixelEndX);
-				polyLines->append(pixelEndY);
-			}
-			else if (lettre == "S" || lettre == "s")
-			{
-				//1 point de controle et 1 point pour la fin
-
-				int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
-				int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-				int pixelEndX = round(paths[i][j + 3].toDouble() / 3.0235602);
-				int pixelEndY = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
-
-				polyLines->append(pixelC1X);
-				polyLines->append(pixelC1Y);
-				polyLines->append(pixelEndX);
-				polyLines->append(pixelEndY);
-			}
-			else if (lettre == "Q" || lettre == "q")
-			{
-				//1 point de controle et 1 point pour la fin
-
-				int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
-				int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-				int pixelEndX = round(paths[i][j + 3].toDouble() / 3.0235602);
-				int pixelEndY = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
-
-				polyLines->append(pixelC1X);
-				polyLines->append(pixelC1Y);
-				polyLines->append(pixelEndX);
-				polyLines->append(pixelEndY);
-			}
-			else if (lettre == "T" || lettre == "t")
-			{
-				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-
-				polyLines->append(pixelX);
-				polyLines->append(pixelY);
-			}
-			else if (lettre == "A" || lettre == "a")
-			{
-				int pixelX = round(paths[i][j + 6].toDouble() / 3.0235602);
-				int pixelY = round((paths[i][j + 7].toDouble() - 447) / 2.77083333);
-
-				polyLines->append(pixelX);
-				polyLines->append(pixelY);
-			}
-		}
-	}
-
-	
-	//supression des doublons qui se suivent
-	//TODO pas sur de l'utilité
-	//delDuplicate(polyLines);
-	//*polyLines = triPolyLines(polyLines);
-	//qDebug() << (*polyLines);
-}
-
-//void MainWindow::pathToPolyLine(const QList<QList<QString>> paths, QList<QPoint>* polyLines) {
+//void MainWindow::pathToPolyLine(const QList<QList<QString>> paths, QList<int>* polyLines) {
 //
 //	for (int i = 0; i < paths.count(); i++)
 //	{
-//		qDebug() << paths[i];
+//		//qDebug() << paths[i];
 //		for (int j = 0; j < paths[i].count(); j++)
 //		{
-//			Parcours de tous les paths pour créer la liste des points convertis en pixel 
+//			//Parcours de tous les paths pour créer la liste des points convertis en pixel 
 //			QString lettre = paths[i][j];
 //
 //			if (lettre == "M" || lettre == "m")
@@ -376,33 +218,37 @@ void MainWindow::pathToPolyLine(const QList<QList<QString>> paths, QList<int>* p
 //
 //				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
 //				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//				QPoint point(pixelX, pixelY);
-//				polyLines->append(point);
+//
+//				polyLines->append(pixelX);
+//				polyLines->append(pixelY);
 //			}
 //			else if (lettre == "L" || lettre == "l")
 //			{
 //				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
 //				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//				QPoint point(pixelX, pixelY);
-//				polyLines->append(point);
+//
+//				polyLines->append(pixelX);
+//				polyLines->append(pixelY);
 //			}
 //			else if (lettre == "H" || lettre == "h")
 //			{
 //				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
 //				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//				QPoint point(pixelX, pixelY);
-//				polyLines->append(point);
+//
+//				polyLines->append(pixelX);
+//				polyLines->append(pixelY);
 //			}
 //			else if (lettre == "V" || lettre == "v")
 //			{
 //				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
 //				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//				QPoint point(pixelX, pixelY);
-//				polyLines->append(point);
+//
+//				polyLines->append(pixelX);
+//				polyLines->append(pixelY);
 //			}
 //			else if (lettre == "C" || lettre == "c")
 //			{
-//				2 point de controle et 1 point pour la fin
+//				//2 point de controle et 1 point pour la fin
 //
 //				int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
 //				int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
@@ -411,115 +257,291 @@ void MainWindow::pathToPolyLine(const QList<QList<QString>> paths, QList<int>* p
 //				int pixelEndX = round(paths[i][j + 5].toDouble() / 3.0235602);
 //				int pixelEndY = round((paths[i][j + 6].toDouble() - 447) / 2.77083333);
 //
-//				QPoint pointC1(pixelC1X, pixelC1Y);
-//				QPoint pointC2(pixelC2X, pixelC2Y);
-//				QPoint pointEnd(pixelEndX, pixelEndY);
-//				polyLines->append(pointC1);
-//				polyLines->append(pointC2);
-//				polyLines->append(pointEnd);
+//				polyLines->append(pixelC1X);
+//				polyLines->append(pixelC1Y);
+//				polyLines->append(pixelC2X);
+//				polyLines->append(pixelC2Y);
+//				polyLines->append(pixelEndX);
+//				polyLines->append(pixelEndY);
 //			}
 //			else if (lettre == "S" || lettre == "s")
 //			{
-//				1 point de controle et 1 point pour la fin
+//				//1 point de controle et 1 point pour la fin
 //
 //				int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
 //				int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
 //				int pixelEndX = round(paths[i][j + 3].toDouble() / 3.0235602);
 //				int pixelEndY = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
 //
-//				QPoint pointC1(pixelC1X, pixelC1Y);
-//				QPoint pointEnd(pixelEndX, pixelEndY);
-//				polyLines->append(pointC1);
-//				polyLines->append(pointEnd);
+//				polyLines->append(pixelC1X);
+//				polyLines->append(pixelC1Y);
+//				polyLines->append(pixelEndX);
+//				polyLines->append(pixelEndY);
 //			}
 //			else if (lettre == "Q" || lettre == "q")
 //			{
-//				1 point de controle et 1 point pour la fin
+//				//1 point de controle et 1 point pour la fin
 //
 //				int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
 //				int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
 //				int pixelEndX = round(paths[i][j + 3].toDouble() / 3.0235602);
 //				int pixelEndY = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
 //
-//				QPoint pointC1(pixelC1X, pixelC1Y);
-//				QPoint pointEnd(pixelEndX, pixelEndY);
-//				polyLines->append(pointC1);
-//				polyLines->append(pointEnd);
+//				polyLines->append(pixelC1X);
+//				polyLines->append(pixelC1Y);
+//				polyLines->append(pixelEndX);
+//				polyLines->append(pixelEndY);
 //			}
 //			else if (lettre == "T" || lettre == "t")
 //			{
 //				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
 //				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//				QPoint point(pixelX, pixelY);
-//				polyLines->append(point);
+//
+//				polyLines->append(pixelX);
+//				polyLines->append(pixelY);
 //			}
 //			else if (lettre == "A" || lettre == "a")
 //			{
 //				int pixelX = round(paths[i][j + 6].toDouble() / 3.0235602);
 //				int pixelY = round((paths[i][j + 7].toDouble() - 447) / 2.77083333);
-//				QPoint point(pixelX, pixelY);
-//				polyLines->append(point);
+//
+//				polyLines->append(pixelX);
+//				polyLines->append(pixelY);
 //			}
 //		}
 //	}
 //
-//	supression des doublons qui se suivent
-//TODO pas sur de l'utilité
-//delDuplicate(polyLines);
-//*polyLines = triPolyLines(polyLines);
-//qDebug() << (*polyLines);
+//	
+//	//supression des doublons qui se suivent
+//	//TODO pas sur de l'utilité
+//	//delDuplicate(polyLines);
+//	//*polyLines = triPolyLines(polyLines);
+//	//qDebug() << (*polyLines);
 //}
 
 
-void MainWindow::delDuplicate(QList<QPoint>* polyLines)
+void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoint>* polyLines)
 {
-	for (int i = 0; i < polyLines->count(); i++)
+	
+	QVector<QList<QPoint>> polyLinesByPath(paths.size());
+	
+	for (int i = 0; i < paths.count(); i++)
 	{
-		if ((*polyLines)[i].x() == (*polyLines)[i].y())
+		for (int j = 0; j < paths[i].count(); j++)
 		{
-			polyLines->removeAt(i);
-		}
-	}
-}
-
-QList<QPoint> MainWindow::triPolyLines(QList<QPoint>* polyLines)
-{
-	QList<QPoint> polyLinesTrie;
-	for (int i = 0; i < polyLines->count(); i++)
-	{
-		polyLinesTrie.append((*polyLines)[i]);
-		for (int j = 0; j < polyLines->count(); j++)
-			if ((*polyLines)[i].y() == (*polyLines)[j].x() && i != j)
+			//Parcours de tous les paths pour créer la liste des points convertis en pixel 
+			QString lettre = paths[i][j];
+			if (lettre == "M" || lettre == "m")
 			{
-				qDebug() << (*polyLines)[i].x() << (*polyLines)[i].y();
-				qDebug() << (*polyLines)[j].x() << (*polyLines)[j].y();
-				polyLinesTrie.append((*polyLines)[j]);
-				polyLines->removeAt(j);
-				break;
+				//int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
+				//int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
+				//QPoint point(pixelX, pixelY);
+
+				QPoint point(round(paths[i][j + 1].toDouble()) , round((paths[i][j + 2].toDouble())));
+
+				polyLinesByPath[i].append(point);
+				j += 2;
 			}
+			else if (lettre == "L" || lettre == "l")
+			{
+				//int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
+				//int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
+				//QPoint point(pixelX, pixelY);
+
+				QPoint point(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
+
+				polyLinesByPath[i].append(point);
+				j += 2;
+			}
+			else if (lettre == "H" || lettre == "h")
+			{
+				//int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
+				//int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
+				//QPoint point(pixelX, pixelY);
+
+				QPoint point(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
+
+				polyLinesByPath[i].append(point);
+				j += 2;
+			}
+			else if (lettre == "V" || lettre == "v")
+			{
+				//int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
+				//int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
+				//QPoint point(pixelX, pixelY);
+
+				QPoint point(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
+
+				polyLinesByPath[i].append(point);
+				j += 2;
+			}
+			else if (lettre == "C" || lettre == "c")
+			{
+				//2 point de controle et 1 point pour la fin
+
+				//int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
+				//int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
+				//int pixelC2X = round(paths[i][j + 3].toDouble() / 3.0235602);
+				//int pixelC2Y = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
+				//int pixelEndX = round(paths[i][j + 5].toDouble() / 3.0235602);
+				//int pixelEndY = round((paths[i][j + 6].toDouble() - 447) / 2.77083333);
+
+				//QPoint pointC1(pixelC1X, pixelC1Y);
+				//QPoint pointC2(pixelC2X, pixelC2Y);
+				//QPoint pointEnd(pixelEndX, pixelEndY);
+
+				QPoint pointC1(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
+				QPoint pointC2(round(paths[i][j + 3].toDouble()), round((paths[i][j + 4].toDouble())));
+				QPoint pointEnd(round(paths[i][j + 5].toDouble()), round((paths[i][j + 6].toDouble())));
+
+				polyLinesByPath[i].append(pointC1);
+				polyLinesByPath[i].append(pointC2);
+				polyLinesByPath[i].append(pointEnd);
+				j += 6;
+			}
+			else if (lettre == "S" || lettre == "s")
+			{
+				//1 point de controle et 1 point pour la fin
+
+				//int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
+				//int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
+				//int pixelEndX = round(paths[i][j + 3].toDouble() / 3.0235602);
+				//int pixelEndY = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
+
+				//QPoint pointC1(pixelC1X, pixelC1Y);
+				//QPoint pointEnd(pixelEndX, pixelEndY);
+
+				QPoint pointC1(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
+				QPoint pointEnd(round(paths[i][j + 3].toDouble()), round((paths[i][j + 4].toDouble())));
+
+				polyLinesByPath[i].append(pointC1);
+				polyLinesByPath[i].append(pointEnd);
+				j += 4;
+			}
+			else if (lettre == "Q" || lettre == "q")
+			{
+				//1 point de controle et 1 point pour la fin
+
+				//int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
+				//int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
+				//int pixelEndX = round(paths[i][j + 3].toDouble() / 3.0235602);
+				//int pixelEndY = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
+
+				//QPoint pointC1(pixelC1X, pixelC1Y);
+				//QPoint pointEnd(pixelEndX, pixelEndY);
+
+				QPoint pointC1(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
+				QPoint pointEnd(round(paths[i][j + 3].toDouble()), round((paths[i][j + 4].toDouble())));
+
+				polyLinesByPath[i].append(pointC1);
+				polyLinesByPath[i].append(pointEnd);
+				j += 4;
+			}
+			else if (lettre == "T" || lettre == "t")
+			{
+				//int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
+				//int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
+				//QPoint point(pixelX, pixelY);
+
+				QPoint point(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
+
+				polyLinesByPath[i].append(point);
+				j += 2;
+			}
+			else if (lettre == "A" || lettre == "a")
+			{
+				//int pixelX = round(paths[i][j + 6].toDouble() / 3.0235602);
+				//int pixelY = round((paths[i][j + 7].toDouble() - 447) / 2.77083333);
+				//QPoint point(pixelX, pixelY);
+
+				QPoint point(round(paths[i][j + 6].toDouble()), round((paths[i][j + 7].toDouble())));
+
+				polyLinesByPath[i].append(point);
+				j += 7;
+			}
+		}
+		qDebug() /*<< "path : " << i << " : " << paths[i] << endl*/ << "first " << polyLinesByPath[i].first() << "last " << polyLinesByPath[i].last();
 	}
-	return polyLinesTrie;
+
+	//supression des doublons qui se suivent
+	//TODO pas sur de l'utilité
+	QVector<QList<QPoint>> tempPolyLines;
+	qDebug() << endl;
+	tempPolyLines = triPolyLines(polyLinesByPath);
+	qDebug() << endl;
+	for(auto line : tempPolyLines)
+	qDebug() << line << endl;
 }
 
-void MainWindow::writeAndSaveXML(QList<int> pixelsList, const QString fileName, const QString saveDir)
+
+QVector<QList<QPoint>> MainWindow::triPolyLines(QVector<QList<QPoint>> polyLines)
+{
+	for (int indexOfCurrentPath = 0; indexOfCurrentPath < polyLines.count(); indexOfCurrentPath++)
+	{
+		for (int indexOfOtherPaths = indexOfCurrentPath + 1 ; indexOfOtherPaths < polyLines.count(); )
+		{
+			if (polyLines[indexOfCurrentPath].last() == polyLines[indexOfOtherPaths].first())
+			{
+				polyLines[indexOfCurrentPath] << polyLines[indexOfOtherPaths];
+				polyLines.remove(indexOfOtherPaths);
+				indexOfOtherPaths = indexOfCurrentPath + 1;
+			}
+			else if (polyLines[indexOfCurrentPath].last() == polyLines[indexOfOtherPaths].last())
+			{
+				std::reverse(polyLines[indexOfOtherPaths].begin(), polyLines[indexOfOtherPaths].end());
+				polyLines[indexOfCurrentPath] << polyLines[indexOfOtherPaths];
+				polyLines.remove(indexOfOtherPaths);
+				indexOfOtherPaths = indexOfCurrentPath + 1;
+			}
+			else if (polyLines[indexOfCurrentPath].first() == polyLines[indexOfOtherPaths].first())
+			{
+				std::reverse(polyLines[indexOfCurrentPath].begin(), polyLines[indexOfCurrentPath].end());
+				polyLines[indexOfCurrentPath] << polyLines[indexOfOtherPaths];
+				polyLines.remove(indexOfOtherPaths);
+				indexOfOtherPaths = indexOfCurrentPath + 1;
+			}
+			else if (polyLines[indexOfCurrentPath].first() == polyLines[indexOfOtherPaths].last())
+			{
+				polyLines[indexOfCurrentPath] = polyLines[indexOfOtherPaths] + polyLines[indexOfCurrentPath];
+				polyLines.remove(indexOfOtherPaths);
+				indexOfOtherPaths = indexOfCurrentPath + 1;
+			}
+			else
+				indexOfOtherPaths++;
+		}
+		for (auto line : polyLines)
+			qDebug() << line << endl;
+		qDebug() << polyLines.size() << "*****************" << endl;
+	}
+	return polyLines;
+}
+
+void MainWindow::mergeTwoPaths(QList<QPoint>* path1, QList<QPoint> path2)
+{
+	qDebug() << "path 1 : " << *path1 << "path 2" << path2 << endl;
+	for (int i = 1; i < path2.count(); i++)
+		path1->append(path2[i]);
+}
+
+
+
+void MainWindow::writeAndSaveXml(QList<QPoint> pixelsList, const QString fileName, infoConversion* infos)
 {
 	QList<QString> convertFile;
-	infoConv info;
 
 	//recuperation du nom du fichier pour l'inclure dans le nom xml
-	QString cleSVG = fileName.split("/").last();
-	int pos = cleSVG.lastIndexOf(".");
-	cleSVG.remove(pos, fileName.length());
-	recupSAP(cleSVG, &info);
+	QString cleSvg = fileName.split(".").first();
+	//recuperation de toutes les infos
+	recupSAP(cleSvg, infos);
 
 	// charge le fichier xml generique
-	if (inputDirXML.isEmpty())
+	if (inputDirXml.isEmpty())
 	{
 		QMessageBox::critical(nullptr, "Error", "Select directory for generic XML !");
 		return;
 	}
-
-	QFile file(inputDirXML + "/Matiere CPEEK.xml");
+	//TODO changer par la variable matiere de infos
+	QFile file(inputDirXml + "/Matiere CPEEK.xml");
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
 		qDebug() << "failed open Material file";
@@ -536,11 +558,11 @@ void MainWindow::writeAndSaveXML(QList<int> pixelsList, const QString fileName, 
 	// Find the desired tag
 	QDomElement root = xmlCoreDoc.documentElement();
 	QDomNode configDataNode = root.firstChildElement("Configurations")
-		.firstChildElement("ConfigData")
-		.firstChildElement("Measuring")
-		.firstChildElement("Objects")
-		.firstChildElement("MeasuringObject")
-		.firstChildElement("MPoly");
+									.firstChildElement("ConfigData")
+									.firstChildElement("Measuring")
+									.firstChildElement("Objects")
+									.firstChildElement("MeasuringObject")
+									.firstChildElement("MPoly");
 
 
 	if (!configDataNode.isNull()) {
@@ -554,10 +576,10 @@ void MainWindow::writeAndSaveXML(QList<int> pixelsList, const QString fileName, 
 				QDomElement Point = xmlCoreDoc.createElement("Point");
 				QDomElement X = xmlCoreDoc.createElement("X");
 				QDomElement Y = xmlCoreDoc.createElement("Y");
-				//Points.setAttribute("Y",pixelsList[i+1] );
-				//Points.setAttribute("X",pixelsList[i] );
-				QDomText  x_value = xmlCoreDoc.createTextNode(QString::number(pixelsList[i]));
-				QDomText  y_value = xmlCoreDoc.createTextNode(QString::number(pixelsList[i + 1]));
+				//Points.setAttribute("Y",pixelsList[i+1]);
+				//Points.setAttribute("X",pixelsList[i]);
+				QDomText  x_value = xmlCoreDoc.createTextNode(QString::number(pixelsList[i].x()));
+				QDomText  y_value = xmlCoreDoc.createTextNode(QString::number(pixelsList[i].y()));
 				X.appendChild(x_value);
 				Y.appendChild(y_value);
 
@@ -571,7 +593,7 @@ void MainWindow::writeAndSaveXML(QList<int> pixelsList, const QString fileName, 
 
 	// Save the modified XML to a new file
 	
-	QString outDirPath = saveDir + "/" + info.machine + "_xml";
+	QString outDirPath = outputDirSvg + "/" + infos->machine + "_xml";
 
 	// Check if output folder exists
 	QDir outDir(outDirPath);
@@ -584,13 +606,7 @@ void MainWindow::writeAndSaveXML(QList<int> pixelsList, const QString fileName, 
 		}
 	}
 
-	else
-	{
-		QMessageBox::critical(nullptr, "Error", "Wrong output directory for svg" + outDirPath);
-		return;
-	}
-
-	QFile nouvFich(outDirPath + "/" + cleSVG + "_" + info.programme + ".xml");
+	QFile nouvFich(outDirPath + "/" + cleSvg + "_" + infos->programme + ".xml");
 	if (!nouvFich.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
 		QMessageBox::critical(nullptr, "Error", "Failed open " + outDirPath);
@@ -603,13 +619,12 @@ void MainWindow::writeAndSaveXML(QList<int> pixelsList, const QString fileName, 
 }
 
 
-void MainWindow::recupSAP(QString cleSVG, infoConv *info)
+void MainWindow::recupSAP(QString cleSvg, infoConversion* infos)
 {
-
-	if (inputDirSAP.isEmpty())
+	if (inputDirSap.isEmpty())
 		QMessageBox::critical(nullptr, "Error", "Select directory for SAP files !");
 
-	QFile fichParc1(inputDirSAP + "/ZIN55_V3.csv");
+	QFile fichParc1(inputDirSap + "/ZIN55_V3.csv");
 	if (!fichParc1.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
 
@@ -621,16 +636,23 @@ void MainWindow::recupSAP(QString cleSVG, infoConv *info)
 	{
 		ligne = streamParc1.readLine();
 		champs = ligne.split('|');
-
-		if (champs.size() > 5 && champs[4].contains(cleSVG)) {
-			info->article = champs[1];
+		
+		if (champs.size() > 5 && champs[4].contains(cleSvg)) {
+			infos->article = champs[1];
 			break;
 		}
+	}
+	if(infos->article.isEmpty())
+	{
+		infos->article = "Inconnue";
+		QMessageBox::critical(nullptr, "Error", "SVG article not found in SAP file !");
+		return;
+
 	}
 	//fermeture du fichier et du flux pour parcourir a nouveau le fichier
 	fichParc1.close();
 	
-	QFile fichParc2(inputDirSAP +"/ZIN55_V3.csv");
+	QFile fichParc2(inputDirSap +"/ZIN55_V3.csv");
 	if (!fichParc2.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
 		QMessageBox::critical(nullptr, "Error", "Sap file is empty !");
@@ -645,20 +667,20 @@ void MainWindow::recupSAP(QString cleSVG, infoConv *info)
 		champs = ligne.split('|');
 		if (champs.size() > 1)
 		//on parcours toutes les lignes de ZIN55_V3.csv où l'article corespond pour recuperer la cellule MAGELIS
-		while(champs.size() > 5 && champs[1].contains(info->article) && !streamParc2.atEnd()) 
+		while(champs.size() > 5 && champs[1].contains(infos->article) && !streamParc2.atEnd()) 
 		{
 			//qDebug() << champs[5];
 			if (champs[4].contains("MAGELIS_"))
 			{
 				QStringList parseMAGELIS = champs[4].split("MAGELIS_");
 				if(parseMAGELIS[0] == "62121")
-					info->machine = "Presse55T";
+					infos->machine = "Presse55T";
 				else if(parseMAGELIS[0] == "61998")
-					info->machine = "Presse 75T";
+					infos->machine = "Presse 75T";
 				else
-					info->machine = "Inconnue";
+					infos->machine = "Inconnue";
 				//il y a de esapces a la fin donc oblige de splilt a " " 
-				info->programme = parseMAGELIS[1].split(" ").first();
+				infos->programme = parseMAGELIS[1].split(" ").first();
 			}
 			ligne = streamParc2.readLine();
 			champs = ligne.split("|");
@@ -666,7 +688,7 @@ void MainWindow::recupSAP(QString cleSVG, infoConv *info)
 	}
 
 
-	QFile fich(inputDirSAP +"/ZIN41BV2.csv");
+	QFile fich(inputDirSap +"/ZIN41BV2.csv");
 	if (!fich.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
 		QMessageBox::critical(nullptr, "Error", "Sap file is empty !");
@@ -680,32 +702,32 @@ void MainWindow::recupSAP(QString cleSVG, infoConv *info)
 	{
 		ligne = stream.readLine();
 		champs = ligne.split('\t');
-		if (champs.size() > 13 && champs[1].contains(info->article)) {
+		if (champs.size() > 13 && champs[1].contains(infos->article)) {
 			QString nomenclature = champs[12];
 			//pour l'instant on a que ces 4 types de materiaux
 			if (nomenclature.contains("ABS5045"))
 			{
-				info->materiel = "Matiere CPPS";
+				infos->materiel = "Matiere CPPS";
 				break;
 			}
 			else if (nomenclature.contains("ABS5222"))
 			{
-				info->materiel = "Matiere VPPS";
+				infos->materiel = "Matiere VPPS";
 				break;
 			}
 			else if (nomenclature.contains("ABS5833"))
 			{
-				info->materiel = "Matiere CPEEK";
+				infos->materiel = "Matiere CPEEK";
 				break;
 			}
 			else if (nomenclature.contains("BAC1532"))
 			{
-				info->materiel = "Matiere CPEKK";
+				infos->materiel = "Matiere CPEKK";
 				break;
 			}
 			else
 			{
-				info->materiel = "Inconnue";
+				infos->materiel = "Inconnu";
 				break;
 			}
 		}
@@ -714,8 +736,74 @@ void MainWindow::recupSAP(QString cleSVG, infoConv *info)
 	fich.close();
 }
 
-void MainWindow::setTableConv(infoConv info)
-{
 
+void MainWindow::setTableConversion(infoConversion* infos, const QList<int> rowIds)
+{
+	int nRow = rowIds[rowIds.length() - 1] + 1;
+	QTableView* tableInfos = ui->conversionTableView;
+	QStandardItemModel* tableInfosModel = new QStandardItemModel(nRow, nInfo);
+
+	//car on veut pouvoir modifier la taille sur cette colonne d'en tete
+	tableInfosModel->setHorizontalHeaderItem(0, new QStandardItem(infosList[0]));
+
+	for (int colHeader = 1; colHeader < nInfo; colHeader++)
+	{
+		tableInfosModel->setHorizontalHeaderItem(colHeader, new QStandardItem(infosList[colHeader]));
+
+		//TODO chaque colonne du header doit completer l'espace sauf la premiere
+		//QHeaderView *headerView = tableInfos->horizontalHeader();
+		//headerView->setSectionResizeMode(colHeader, QHeaderView::Stretch);
+	}
+
+	for (const int rowId : rowIds)
+	{
+		for (int column = 0; column < nInfo ; column++)
+		{
+			//initialisation des 3 objets qui composeront le QTableWidgetItem
+
+			QString textLabel;
+			switch (column)
+			{
+				case 0:
+				{
+					textLabel = ui->svgFileTableWidget->item(rowId, column)->text();
+					break;
+				}
+				case 1:
+				{
+					textLabel = infos->article;
+					break;
+
+				}
+				case 2:
+				{
+					textLabel = infos->machine;
+					break;
+				}
+				case 3:
+				{
+					textLabel = infos->programme;
+					break;
+				}
+				case 4:
+				{
+					textLabel = infos->materiel;
+					break;
+				}
+				default:
+					break;
+			}
+
+			QStandardItem* infosConversionItem = new QStandardItem(textLabel);
+
+			if (textLabel != "Inconnu" && textLabel != "Inconnue")
+				infosConversionItem->setBackground(QColor(Qt::green));
+			else
+				infosConversionItem->setBackground(QColor(Qt::red));
+			tableInfosModel->setItem(rowId, column, infosConversionItem);
+			//tableInfos->setItem(rowId, column, infosConversionItem);
+		}
+	}
+	tableInfos->setModel(tableInfosModel);
 }
 
