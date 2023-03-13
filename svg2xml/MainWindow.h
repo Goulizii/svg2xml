@@ -11,8 +11,6 @@ class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
-
-
 		typedef struct info_conversion_struct
 		{
 			QString article;
@@ -44,13 +42,11 @@ private:
 	//recupere toutles path svg d'un fichier donnee 
 	QList<QList<QString>> MainWindow::getPathsFromFile(QString fileName);
 
-	//TODO
-	void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoint>* polyLines);
+	//Transforme une liste de chemins svg en une liste de points qui se suivent
+	QList<QPoint> MainWindow::pathsToPolyLines(const QList<QList<QString>> paths);
 
 	//TODO verifier utilite
-	QVector<QList<QPoint>> MainWindow::triPolyLines(QVector<QList<QPoint>> polyLines);
-
-	void MainWindow::mergeTwoPaths(QList<QPoint>* path1, QList<QPoint> path2);
+	QList<QPoint> MainWindow::triPolyLines(QList<QList<QPoint>>* polyLines);
 
 	//recupere l'XML de base et en sauvegarde une nouvelle version en fonction de la liste de points donnees en entree
 	void MainWindow::writeAndSaveXml(const QList<QPoint> polyLines, const QString fileName, infoConversion* infos);

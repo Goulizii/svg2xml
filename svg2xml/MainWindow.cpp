@@ -1,4 +1,7 @@
 #include <iostream>
+#include <string>
+#include "MainWindow.h"
+
 #include <QFileDialog>
 #include <QFile>
 #include <QMessageBox>
@@ -9,14 +12,16 @@
 #include <QPointF>
 #include <QPainterPath>
 #include <QTransform>
-#include <string>
-#include "MainWindow.h"
+
 #include <QtXml/QDomDocument>
 #include <QtSvg/QSvgRenderer>
 #include <experimental/filesystem>
+#include <QVectorIterator>
+#include<iterator>
 
 
 using namespace std;
+typedef QList<QPoint> PointList;
 
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindowClass)
@@ -73,7 +78,6 @@ void MainWindow::selectSvgClicked()
 		}
 	}
 }
-
 
 void MainWindow::toutCocherCheck() {
 	QCheckBox *tCheckBox = ui->toutCheckBox;
@@ -136,12 +140,10 @@ void MainWindow::convertirClicked()
 	QList<QList<QString>> pathsFromFile;
 	
 	//liste qui va contenir le chemin trie
-	QList<QPoint> polyLines;
-	for (int i = 0; i < svgFileList.count(); ++i) 
+	PointList polyLines;
+	for (int iFich = 0; iFich < svgFileList.count(); ++iFich)
 	{
-		/*TOTO*/
-
-		QString filePath(svgFileList[i]->text());
+		QString filePath(svgFileList[iFich]->text());
 		infoConversion infosConversion;
 
 		QFile file(filePath);
@@ -149,7 +151,7 @@ void MainWindow::convertirClicked()
 		//recupere le nom du fichier pour le passer en parametre dans writeAndSaveXML
 		QString fileName =  QFileInfo(file).fileName();;
 		pathsFromFile = getPathsFromFile(filePath);
-		pathsToPolyLines(pathsFromFile, &polyLines);
+		pathsToPolyLines(pathsFromFile);
 		writeAndSaveXml(polyLines, fileName, &infosConversion);
 		setTableConversion(&infosConversion, rowIds);
 	}
@@ -171,6 +173,8 @@ void MainWindow::getCheckedFile(QList<QTableWidgetItem*>* svgFileList, QList<int
 }
 
 
+
+
 QList<QList<QString>> MainWindow::getPathsFromFile(QString filePath)
 {
 	QList<QList<QString>> pathsList;
@@ -180,9 +184,10 @@ QList<QList<QString>> MainWindow::getPathsFromFile(QString filePath)
 		return pathsList;
 
 	QXmlStreamReader xml(&file);
+	
 	while (!xml.atEnd() && !xml.hasError())
 	{
-		// recherche des éléments de type "chemin"
+			// recherche des éléments de type "chemin"
 		if (xml.name() == "path")
 		{
 			//on recupere le chemin complet pour l'ajouter a pathsList
@@ -196,137 +201,23 @@ QList<QList<QString>> MainWindow::getPathsFromFile(QString filePath)
 		xml.readNext();
 	}
 	if (xml.hasError())
+	{
+		QMessageBox::critical(nullptr, "Error", "Failed read in svg !" + filePath);
 		return pathsList;
+	}
 
 	file.close();
 	return pathsList;
 }
 
 
-//void MainWindow::pathToPolyLine(const QList<QList<QString>> paths, QList<int>* polyLines) {
-//
-//	for (int i = 0; i < paths.count(); i++)
-//	{
-//		//qDebug() << paths[i];
-//		for (int j = 0; j < paths[i].count(); j++)
-//		{
-//			//Parcours de tous les paths pour créer la liste des points convertis en pixel 
-//			QString lettre = paths[i][j];
-//
-//			if (lettre == "M" || lettre == "m")
-//			{
-//
-//				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-//				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//
-//				polyLines->append(pixelX);
-//				polyLines->append(pixelY);
-//			}
-//			else if (lettre == "L" || lettre == "l")
-//			{
-//				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-//				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//
-//				polyLines->append(pixelX);
-//				polyLines->append(pixelY);
-//			}
-//			else if (lettre == "H" || lettre == "h")
-//			{
-//				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-//				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//
-//				polyLines->append(pixelX);
-//				polyLines->append(pixelY);
-//			}
-//			else if (lettre == "V" || lettre == "v")
-//			{
-//				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-//				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//
-//				polyLines->append(pixelX);
-//				polyLines->append(pixelY);
-//			}
-//			else if (lettre == "C" || lettre == "c")
-//			{
-//				//2 point de controle et 1 point pour la fin
-//
-//				int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
-//				int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//				int pixelC2X = round(paths[i][j + 3].toDouble() / 3.0235602);
-//				int pixelC2Y = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
-//				int pixelEndX = round(paths[i][j + 5].toDouble() / 3.0235602);
-//				int pixelEndY = round((paths[i][j + 6].toDouble() - 447) / 2.77083333);
-//
-//				polyLines->append(pixelC1X);
-//				polyLines->append(pixelC1Y);
-//				polyLines->append(pixelC2X);
-//				polyLines->append(pixelC2Y);
-//				polyLines->append(pixelEndX);
-//				polyLines->append(pixelEndY);
-//			}
-//			else if (lettre == "S" || lettre == "s")
-//			{
-//				//1 point de controle et 1 point pour la fin
-//
-//				int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
-//				int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//				int pixelEndX = round(paths[i][j + 3].toDouble() / 3.0235602);
-//				int pixelEndY = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
-//
-//				polyLines->append(pixelC1X);
-//				polyLines->append(pixelC1Y);
-//				polyLines->append(pixelEndX);
-//				polyLines->append(pixelEndY);
-//			}
-//			else if (lettre == "Q" || lettre == "q")
-//			{
-//				//1 point de controle et 1 point pour la fin
-//
-//				int pixelC1X = round(paths[i][j + 1].toDouble() / 3.0235602);
-//				int pixelC1Y = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//				int pixelEndX = round(paths[i][j + 3].toDouble() / 3.0235602);
-//				int pixelEndY = round((paths[i][j + 4].toDouble() - 447) / 2.77083333);
-//
-//				polyLines->append(pixelC1X);
-//				polyLines->append(pixelC1Y);
-//				polyLines->append(pixelEndX);
-//				polyLines->append(pixelEndY);
-//			}
-//			else if (lettre == "T" || lettre == "t")
-//			{
-//				int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-//				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-//
-//				polyLines->append(pixelX);
-//				polyLines->append(pixelY);
-//			}
-//			else if (lettre == "A" || lettre == "a")
-//			{
-//				int pixelX = round(paths[i][j + 6].toDouble() / 3.0235602);
-//				int pixelY = round((paths[i][j + 7].toDouble() - 447) / 2.77083333);
-//
-//				polyLines->append(pixelX);
-//				polyLines->append(pixelY);
-//			}
-//		}
-//	}
-//
-//	
-//	//supression des doublons qui se suivent
-//	//TODO pas sur de l'utilité
-//	//delDuplicate(polyLines);
-//	//*polyLines = triPolyLines(polyLines);
-//	//qDebug() << (*polyLines);
-//}
 
-
-void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoint>* polyLines)
+PointList MainWindow::pathsToPolyLines(const QList<QList<QString>> paths)
 {
-	
-	QVector<QList<QPoint>> polyLinesByPath(paths.size());
-	
+	QList<PointList> polyLines;
 	for (int i = 0; i < paths.count(); i++)
 	{
+		PointList pathToAdd;
 		for (int j = 0; j < paths[i].count(); j++)
 		{
 			//Parcours de tous les paths pour créer la liste des points convertis en pixel 
@@ -339,7 +230,7 @@ void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoin
 
 				QPoint point(round(paths[i][j + 1].toDouble()) , round((paths[i][j + 2].toDouble())));
 
-				polyLinesByPath[i].append(point);
+				pathToAdd.append(point);
 				j += 2;
 			}
 			else if (lettre == "L" || lettre == "l")
@@ -350,18 +241,18 @@ void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoin
 
 				QPoint point(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
 
-				polyLinesByPath[i].append(point);
+				pathToAdd.append(point);
 				j += 2;
 			}
 			else if (lettre == "H" || lettre == "h")
 			{
-				//int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
-				//int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
-				//QPoint point(pixelX, pixelY);
+				/*int pixelX = round(paths[i][j + 1].toDouble() / 3.0235602);
+				int pixelY = round((paths[i][j + 2].toDouble() - 447) / 2.77083333);
+				QPoint point(pixelX, pixelY);*/
 
 				QPoint point(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
 
-				polyLinesByPath[i].append(point);
+				pathToAdd.append(point);
 				j += 2;
 			}
 			else if (lettre == "V" || lettre == "v")
@@ -372,7 +263,7 @@ void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoin
 
 				QPoint point(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
 
-				polyLinesByPath[i].append(point);
+				pathToAdd.append(point);
 				j += 2;
 			}
 			else if (lettre == "C" || lettre == "c")
@@ -394,9 +285,9 @@ void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoin
 				QPoint pointC2(round(paths[i][j + 3].toDouble()), round((paths[i][j + 4].toDouble())));
 				QPoint pointEnd(round(paths[i][j + 5].toDouble()), round((paths[i][j + 6].toDouble())));
 
-				polyLinesByPath[i].append(pointC1);
-				polyLinesByPath[i].append(pointC2);
-				polyLinesByPath[i].append(pointEnd);
+				pathToAdd.append(pointC1);
+				pathToAdd.append(pointC2);
+				pathToAdd.append(pointEnd);
 				j += 6;
 			}
 			else if (lettre == "S" || lettre == "s")
@@ -414,8 +305,8 @@ void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoin
 				QPoint pointC1(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
 				QPoint pointEnd(round(paths[i][j + 3].toDouble()), round((paths[i][j + 4].toDouble())));
 
-				polyLinesByPath[i].append(pointC1);
-				polyLinesByPath[i].append(pointEnd);
+				pathToAdd.append(pointC1);
+				pathToAdd.append(pointEnd);
 				j += 4;
 			}
 			else if (lettre == "Q" || lettre == "q")
@@ -433,8 +324,8 @@ void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoin
 				QPoint pointC1(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
 				QPoint pointEnd(round(paths[i][j + 3].toDouble()), round((paths[i][j + 4].toDouble())));
 
-				polyLinesByPath[i].append(pointC1);
-				polyLinesByPath[i].append(pointEnd);
+				pathToAdd.append(pointC1);
+				pathToAdd.append(pointEnd);
 				j += 4;
 			}
 			else if (lettre == "T" || lettre == "t")
@@ -445,7 +336,7 @@ void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoin
 
 				QPoint point(round(paths[i][j + 1].toDouble()), round((paths[i][j + 2].toDouble())));
 
-				polyLinesByPath[i].append(point);
+				pathToAdd.append(point);
 				j += 2;
 			}
 			else if (lettre == "A" || lettre == "a")
@@ -456,76 +347,74 @@ void MainWindow::pathsToPolyLines(const QList<QList<QString>> paths, QList<QPoin
 
 				QPoint point(round(paths[i][j + 6].toDouble()), round((paths[i][j + 7].toDouble())));
 
-				polyLinesByPath[i].append(point);
+				pathToAdd.append(point);
 				j += 7;
 			}
 		}
-		qDebug() /*<< "path : " << i << " : " << paths[i] << endl*/ << "first " << polyLinesByPath[i].first() << "last " << polyLinesByPath[i].last();
+		polyLines.append(pathToAdd);
 	}
-
-	//supression des doublons qui se suivent
-	//TODO pas sur de l'utilité
-	QVector<QList<QPoint>> tempPolyLines;
-	qDebug() << endl;
-	tempPolyLines = triPolyLines(polyLinesByPath);
-	qDebug() << endl;
-	for(auto line : tempPolyLines)
-	qDebug() << line << endl;
+	return triPolyLines(&polyLines);
 }
 
 
-QVector<QList<QPoint>> MainWindow::triPolyLines(QVector<QList<QPoint>> polyLines)
+//fusionne 2 paths si ils se suivent
+bool mergePath(PointList& l1, PointList& l2)
 {
-	for (int indexOfCurrentPath = 0; indexOfCurrentPath < polyLines.count(); indexOfCurrentPath++)
+	if (l1.last() == l2.first())
 	{
-		for (int indexOfOtherPaths = indexOfCurrentPath + 1 ; indexOfOtherPaths < polyLines.count(); )
-		{
-			if (polyLines[indexOfCurrentPath].last() == polyLines[indexOfOtherPaths].first())
-			{
-				polyLines[indexOfCurrentPath] << polyLines[indexOfOtherPaths];
-				polyLines.remove(indexOfOtherPaths);
-				indexOfOtherPaths = indexOfCurrentPath + 1;
-			}
-			else if (polyLines[indexOfCurrentPath].last() == polyLines[indexOfOtherPaths].last())
-			{
-				std::reverse(polyLines[indexOfOtherPaths].begin(), polyLines[indexOfOtherPaths].end());
-				polyLines[indexOfCurrentPath] << polyLines[indexOfOtherPaths];
-				polyLines.remove(indexOfOtherPaths);
-				indexOfOtherPaths = indexOfCurrentPath + 1;
-			}
-			else if (polyLines[indexOfCurrentPath].first() == polyLines[indexOfOtherPaths].first())
-			{
-				std::reverse(polyLines[indexOfCurrentPath].begin(), polyLines[indexOfCurrentPath].end());
-				polyLines[indexOfCurrentPath] << polyLines[indexOfOtherPaths];
-				polyLines.remove(indexOfOtherPaths);
-				indexOfOtherPaths = indexOfCurrentPath + 1;
-			}
-			else if (polyLines[indexOfCurrentPath].first() == polyLines[indexOfOtherPaths].last())
-			{
-				polyLines[indexOfCurrentPath] = polyLines[indexOfOtherPaths] + polyLines[indexOfCurrentPath];
-				polyLines.remove(indexOfOtherPaths);
-				indexOfOtherPaths = indexOfCurrentPath + 1;
-			}
-			else
-				indexOfOtherPaths++;
-		}
-		for (auto line : polyLines)
-			qDebug() << line << endl;
-		qDebug() << polyLines.size() << "*****************" << endl;
+		l1 << l2;
+	}
+	else if (l1.last() == l2.last())
+	{
+		std::reverse(l2.begin(), l2.end());
+		l1 << l2;
+	}
+	else if (l1.first() == l2.first())
+	{
+		std::reverse(l1.begin(), l1.end());
+		l1 << l2;
+	}
+	else if (l1.first() == l2.last())
+	{
+		l1 = l2 + l1;
+	}
+	else
+		return false;
+	return true;
+};
+
+//suprime les doublons
+PointList cleanPolyLine(PointList polyLines)
+{
+	for (int iPoint = 0; iPoint < polyLines.count() - 1;)
+	{
+		if (polyLines[iPoint] == polyLines[iPoint + 1])
+			polyLines.removeAt(iPoint + 1);
+		else
+			iPoint++;
+
 	}
 	return polyLines;
 }
 
-void MainWindow::mergeTwoPaths(QList<QPoint>* path1, QList<QPoint> path2)
+
+PointList MainWindow::triPolyLines(QList<PointList>* polyLines)
 {
-	qDebug() << "path 1 : " << *path1 << "path 2" << path2 << endl;
-	for (int i = 1; i < path2.count(); i++)
-		path1->append(path2[i]);
+	for (int iStart = 0; iStart < polyLines->count(); iStart++)
+		for (int iOther = iStart + 1 ; iOther < polyLines->count(); iOther++)
+			if (mergePath((*polyLines)[iStart], (*polyLines)[iOther]))
+			{
+				polyLines->removeAt(iOther);
+				iOther = iStart;
+			}
+
+	return cleanPolyLine(polyLines->first());
 }
 
 
 
-void MainWindow::writeAndSaveXml(QList<QPoint> pixelsList, const QString fileName, infoConversion* infos)
+
+void MainWindow::writeAndSaveXml(const PointList polyLines, const QString fileName, infoConversion* infos)
 {
 	QList<QString> convertFile;
 
@@ -569,17 +458,17 @@ void MainWindow::writeAndSaveXml(QList<QPoint> pixelsList, const QString fileNam
 		QDomElement configDataElem = configDataNode.toElement();
 		QDomElement Points = xmlCoreDoc.createElement("Points");
 		configDataElem.appendChild(Points);
-		for (int i = 0; i < pixelsList.size(); i++)
+		for (int i = 0; i < polyLines.size(); i++)
 		{
 			if (i % 2 == 0)
 			{
 				QDomElement Point = xmlCoreDoc.createElement("Point");
 				QDomElement X = xmlCoreDoc.createElement("X");
 				QDomElement Y = xmlCoreDoc.createElement("Y");
-				//Points.setAttribute("Y",pixelsList[i+1]);
-				//Points.setAttribute("X",pixelsList[i]);
-				QDomText  x_value = xmlCoreDoc.createTextNode(QString::number(pixelsList[i].x()));
-				QDomText  y_value = xmlCoreDoc.createTextNode(QString::number(pixelsList[i].y()));
+				//Points.setAttribute("Y",polyLines[i+1]);
+				//Points.setAttribute("X",polyLines[i]);
+				QDomText  x_value = xmlCoreDoc.createTextNode(QString::number(polyLines[i].x()));
+				QDomText  y_value = xmlCoreDoc.createTextNode(QString::number(polyLines[i].y()));
 				X.appendChild(x_value);
 				Y.appendChild(y_value);
 
